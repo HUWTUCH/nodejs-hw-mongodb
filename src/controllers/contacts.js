@@ -7,9 +7,22 @@ import {
   updateContact,
   deleteContact,
 } from '../services/contacts.js';
+import { parsePaginationParams } from '../utils/parsePaginationParams.js';
+import { parseSortParams } from '../utils/parseSortParams.js';
+import { parseFilterParams } from '../utils/parseFilterParams.js';
 
 export const getAllContactsController = async (req, res) => {
-  const contacts = await getAllContacts();
+  const { page, perPage } = parsePaginationParams(req.query);
+  const { sortBy, sortOrder } = parseSortParams(req.query);
+  const filter = parseFilterParams(req.query);
+
+  const contacts = await getAllContacts({
+    page,
+    perPage,
+    sortBy,
+    sortOrder,
+    filter,
+  });
 
   res.status(200).json({
     status: 200,
@@ -21,31 +34,24 @@ export const getAllContactsController = async (req, res) => {
 export const getContactByIdController = async (req, res, next) => {
   const { contactId } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(contactId)) {
-    return res.status(404).json({
-      status: 404,
-      message: `Contact with id ${contactId} not found`,
+  try {
+    const contact = await getContactById(contactId);
+
+    if (!contact) {
+      next(createHttpError(404, `Contact with id ${contactId} not found`));
+      return;
+    }
+    res.status(200).json({
+      status: 200,
+      message: `Successfully found contact with id ${contactId}!`,
+      data: contact,
     });
+  } catch (err) {
+    next(err);
   }
-
-  const contact = await getContactById(contactId);
-
-  if (!contact) {
-    next(createHttpError(404, `Contact with id ${contactId} not found`));
-    return;
-    // return res.status(404).json({
-    //   status: 404,
-    //   message: `Contact with id ${contactId} not found`,
-    // });
-  }
-  res.status(200).json({
-    status: 200,
-    message: `Successfully found contact with id ${contactId}!`,
-    data: contact,
-  });
 };
 
-export const createContactController = async (req, res) => {
+export const createContactController = async (req, res, next) => {
   const contact = await createContact(req.body);
 
   res.status(201).json({
