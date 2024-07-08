@@ -1,8 +1,9 @@
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import pino from 'pino-http';
 import cors from 'cors';
 import { env } from './utils/env.js';
-import contactsRouter from './routers/contacts.js';
+import router from './routers/index.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import { isValidId } from './middlewares/isValidId.js';
@@ -15,6 +16,8 @@ export const setupServer = () => {
   app.use(express.json());
   app.use(cors());
   app.use('/contacts/:contactId', isValidId);
+
+  app.use(cookieParser());
 
   app.use(
     pino({
@@ -30,7 +33,7 @@ export const setupServer = () => {
     });
   });
 
-  app.use(contactsRouter);
+  app.use(router);
 
   app.use('*', notFoundHandler);
 
