@@ -14,15 +14,24 @@ const contactSchema = new Schema(
       type: String,
       required: false,
     },
-    avgMark: {
-      type: Number,
-      required: true,
+    isFavourite: {
+      type: Boolean,
+      required: false,
     },
     contactType: {
       type: String,
       required: true,
       enum: ['work', 'home', 'personal'],
       default: 'personal',
+    },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'users',
+      required: true,
+    },
+    photo: {
+      type: String,
+      required: false,
     },
   },
   {
