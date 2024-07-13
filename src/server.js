@@ -9,7 +9,7 @@ import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import { isValidId } from './middlewares/isValidId.js';
 import { UPLOAD_DIR } from './constants/index.js';
 
-const PORT = Number(env('PORT', '3001'));
+const PORT = Number(env('PORT', '3000'));
 
 export const setupServer = () => {
   const app = express();
@@ -36,9 +36,7 @@ export const setupServer = () => {
 
   app.use('/uploads', express.static(UPLOAD_DIR));
 
-
   app.use(router);
-
 
   app.use('*', notFoundHandler);
 
